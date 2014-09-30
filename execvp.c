@@ -12,10 +12,10 @@ void  parse(char *cmd, char **argv)
 			*cmd++ = '\0';     
         *argv++ = cmd;          
 	//temp = *(argv-1);
-	if(i = 0){
+	/*if(i = 0){
 		printf("temp value is: %s\n",*(argv-1));
 		i=1;
-	}
+	}*/
         while (*cmd != '\0' && *cmd != ' ' && 
 				*cmd != '\t' && *cmd != '\n') 
             cmd++;             
@@ -23,51 +23,75 @@ void  parse(char *cmd, char **argv)
     *argv = '\0';         
 }
      
+void print_cmd_line (char **argv) {
+	int i = 0;
+	printf ("The whole command line is: ");
+	for (i = 0; argv[i]; i++) {
+		printf ("%s ", argv[i]);
+	}
+	printf ("\n");
+}
+
 void  execute(char **argv)
 {
     pid_t pid;
     int status;
+	int ampersand_found = 0;
 	
+	if (!*argv) return;
+
 	if(strcmp(*argv,"dir") == 0){
-		strcpy(*argv,"ls");
+		*argv = strdup("ls");
 		printf("The command entered is %s\n",*argv);
 	}
 	else if(strcmp(*argv,"del") == 0){
-		strcpy(*argv,"rm");
+		*argv = strdup("rm");
 		printf("The command entered is %s\n",*argv);
 	}
 	else if(strcmp(*argv,"copy") == 0){
-		strcpy(*argv,"cp");
+		*argv = strdup("cp");
 		printf("The command entered is %s\n",*argv);
 	}
 	else if(strcmp(*argv,"move") == 0){
-		strcpy(*argv,"mv");
+		*argv = strdup("mv");
 		printf("The command entered is %s\n",*argv);
 	}
 	else if(strcmp(*argv,"rename") == 0){
-		strcpy(*argv,"mv");
+		*argv = strdup("mv");
 		printf("The command entered is %s\n",*argv);
 	}
 	else if(strcmp(*argv,"type") == 0){
-		strcpy(*argv,"cat");
+		*argv = strdup("cat");
 		printf("The command entered is %s\n",*argv);
 	}
-	else if(strcmp(*argv,"more<") == 0){
-		strcpy(*argv,"more");
-		printf("The command entered is %s\n",*argv);
+	else if(strcmp(*argv,"more") == 0){
+		if (strcmp (argv[1],"<") == 0) {
+			*argv = strdup("more");
+			printf("The command entered is %s\n",*argv);
+		}
 	}
 	else if(strcmp(*argv,"md") == 0){
-		strcpy(*argv,"mkdir");
+		*argv = strdup("mkdir");
+		/* print_cmd_line(argv); */
 		printf("The command entered is %s\n",*argv);
 	}
 	else if(strcmp(*argv,"rd") == 0){
-		strcpy(*argv,"rmdir");
+		*argv = strdup("rmdir");
 		printf("The command entered is %s\n",*argv);
 	}
 	else if(strcmp(*argv,"cls") == 0){
 		strcpy(*argv,"clear");
 		printf("The command entered is %s\n",*argv);
 	}
+	/* else { */
+		int i = 0;
+		for (i = 0; argv[i]; i++)
+			if (strcmp (argv[i], "&") == 0) {
+				fprintf (stderr, "Ampersand Found!!\n");
+				ampersand_found = 1;
+				argv[i] = (char *)NULL;
+			}
+	/* } */
 	
 	
 	if (strcmp(*argv, "exit") == 0){
@@ -90,8 +114,9 @@ void  execute(char **argv)
 			}
 		}
 		else {                                  
-			while (wait(&status) != pid)       
-				;
+			if (ampersand_found == 0)
+				/* wait (NULL); */
+				while (wait(&status) != pid);
 		}
 	}
 }
