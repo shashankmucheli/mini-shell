@@ -70,7 +70,10 @@ void  execute(char **argv)
 	}
 	
 	
-    if ((strcmp(*argv, "cd")) == 0) {
+	if (strcmp(*argv, "exit") == 0){
+			exit(0);
+	}
+	else if ((strcmp(*argv, "cd")) == 0) {
 		if ((chdir(argv[1])) != 0)
 			printf("Cannot change directory\n");
     }
@@ -112,8 +115,6 @@ void  main(void)
 		gets(cmd);             
 		printf("\n");
 		parse(cmd, argv);       
-		if (strcmp(argv[0], "exit") == 0)  
-			exit(0);
 		execute(argv);
     }
 }
