@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-char temp[100];
 void  parse(char *cmd, char **argv)
 {
 	int i = 0;
@@ -28,8 +27,6 @@ void  execute(char **argv)
 {
     pid_t pid;
     int status;
-	
-	//strcpy(temp, *argv);
 	
 	if(strcmp(*argv,"dir") == 0){
 		strcpy(*argv,"ls");
@@ -78,13 +75,14 @@ void  execute(char **argv)
 			printf("Cannot change directory\n");
     }
 	else{
-		if ((pid = fork()) < 0) {     
-			printf("ERROR: forking child process failed\n");
+		pid = fork();
+		if (pid < 0) {     
+			printf("ERR: forking child process failed\n");
 			exit(1);
 		}
 		else if (pid == 0) {
 			if (execvp(*argv, argv) < 0) {
-				printf("ERROR: exec failed\n");
+				printf("ERR: exec failed\n");
 				exit(1);
 			}
 		}
@@ -108,12 +106,9 @@ void  prompt()
 void  main(void)
 {
     char  cmd[1024]; 
-    char  *argv[64];  
-    //int	prompt;
+    char  *argv[128];  
     while (1) {
-	//prompt = execl("/bin/pwd","pwd", (char *)0);
-	prompt();
-	//printf("Shell - Prompt: ");    
+		prompt();
 		gets(cmd);             
 		printf("\n");
 		parse(cmd, argv);       
