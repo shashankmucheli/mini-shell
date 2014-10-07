@@ -18,13 +18,16 @@ void  parse(char *cmd, char **argv)
     *argv = '\0';         
 }
      
-void print_cmd_line (char **argv) {
+void print_cmd_line (char **argv, char **arg) {
 	int i = 0;
 	printf ("The whole command line is: ");
 	for (i = 0; argv[i]; i++) {
 		printf ("%s ", argv[i]);
 	}
-	printf ("\n");
+	for (i = 0; arg[i]; i++) {
+		printf ("%s", arg[i]);
+	}
+	printf("\n");
 }
 
 void  execute(char **argv)
@@ -33,6 +36,8 @@ void  execute(char **argv)
     int status;
 	int ampersand_found = 0;
 	int pipe_found = 0;
+	char **p_ptr;
+	char **p_ptr2;
 	
 	if (!*argv) return;
 
@@ -79,33 +84,25 @@ void  execute(char **argv)
 		strcpy(*argv,"clear");
 		printf("The command entered is %s\n",*argv);
 	}
-	/* else { */
-		int i = 0;
-		for (i = 0; argv[i]; i++){
-			if (strcmp (argv[i], "&") == 0) {
-				fprintf (stderr, "Ampersand Found!!\n");
-				ampersand_found = 1;
-				argv[i] = (char *)NULL;
-			}
-			
-			if (strcmp (argv[i], "|") == 0) {
-				fprintf (stderr, "Pipe Found!!\n");
-				pipe_found = 1;
-				if(pipe_found == 1){
-					char **p_ptr;
-					*p_ptr = argv[1+1];
-					printf("%s", &p_ptr);
-					/*while(argv[i] != "\0"){
-						printf("%c", &argv[i]);
-						i++;
-					}*/
-					exit(0);
-				}
-				/*argv[i] = (char *)NULL;
-				char* p_ptr = argv[1+i];
-				printf("%c", *p_ptr);*/
+	int i = 0;
+	for (i = 0; argv[i]; i++){
+		if (strcmp (argv[i], "&") == 0) {
+			fprintf (stderr, "Ampersand Found!!\n");
+			ampersand_found = 1;
+			argv[i] = (char *)NULL;
+		}
+		
+		if (strcmp (argv[i], "|") == 0) {
+			fprintf (stderr, "Pipe Found!!\n");
+			pipe_found = 1;
+			if(pipe_found == 1){
+				p_ptr = &argv[0];
+				argv[i] = NULL;
+				p_ptr2 = &argv[i+1]; 
+				//print_cmd_line(p_ptr, p_ptr2);
 			}
 		}
+	}
 	
 	
 	if (strcmp(*argv, "exit") == 0){
@@ -116,21 +113,56 @@ void  execute(char **argv)
 			fprintf (stderr, "ERR: Cannot change directory!!\n");
     }
 	else{
-		pid = fork();
-		if (pid < 0) {     
-			fprintf (stderr, "ERR: forking child process failed!!\n");
-			exit(1);
-		}
-		else if (pid == 0) {
-			if (execvp(*argv, argv) < 0) {
-				fprintf (stderr, "ERR: exec failed!!\n");
+		if(pipe_found == 0){
+			pid = fork();
+			if (pid < 0) {     
+				fprintf (stderr, "ERR: forking child process failed!!\n");
 				exit(1);
 			}
+			else if (pid == 0) {
+				if (execvp(*argv, argv) < 0) {
+					fprintf (stderr, "ERR: exec failed!!\n");
+					exit(1);
+				}
+			}
+			else {                                  
+				if (ampersand_found == 0)
+					while (wait(&status) != pid);
+			}
 		}
-		else {                                  
-			if (ampersand_found == 0)
-				/* wait (NULL); */
-				while (wait(&status) != pid);
+		else if(pipe_found == 1){
+			int p[2];
+			if(pipe(p) == -1) {
+			  perror("Pipe failed");
+			  exit(1);
+			}
+
+			if(fork() == 0)     
+			{
+				close(1);       
+				dup(p[1]);  
+				close(p[0]);
+				close(p[1]);
+				execvp(*p_ptr, p_ptr);
+				perror("execvp of first fork failed");
+				exit(1);
+			}
+
+			if(fork() == 0)        
+			{
+				close(0);          
+				dup(p[0]);     
+				close(p[1]);   
+				close(p[0]);
+				execvp(*p_ptr2, p_ptr2);
+				perror("execvp of second fork failed");
+				exit(1);
+			}
+
+			close(p[0]);
+			close(p[1]);
+			wait(0);
+			wait(0);
 		}
 	}
 }
