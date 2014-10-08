@@ -1,9 +1,10 @@
 #include  <stdio.h>
-#include  <sys/types.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <fcntl.h>
 void  parse(char *cmd, char **argv)
 {
 	int i = 0;
@@ -18,14 +19,11 @@ void  parse(char *cmd, char **argv)
     *argv = '\0';         
 }
      
-void print_cmd_line (char **argv, char **arg) {
+void print_cmd_line (char **argv) {
 	int i = 0;
 	printf ("The whole command line is: ");
 	for (i = 0; argv[i]; i++) {
 		printf ("%s ", argv[i]);
-	}
-	for (i = 0; arg[i]; i++) {
-		printf ("%s", arg[i]);
 	}
 	printf("\n");
 }
@@ -36,6 +34,8 @@ void  execute(char **argv)
     int status;
 	int ampersand_found = 0;
 	int pipe_found = 0;
+	int in_found = 0;
+	int out_found = 0;
 	char **p_ptr;
 	char **p_ptr2;
 	
@@ -92,7 +92,7 @@ void  execute(char **argv)
 			argv[i] = (char *)NULL;
 		}
 		
-		if (strcmp (argv[i], "|") == 0) {
+		else if (strcmp (argv[i], "|") == 0) {
 			fprintf (stderr, "Pipe Found!!\n");
 			pipe_found = 1;
 			if(pipe_found == 1){
@@ -102,6 +102,27 @@ void  execute(char **argv)
 				//print_cmd_line(p_ptr, p_ptr2);
 			}
 		}
+		
+		else if (strcmp (argv[i], "<") == 0) {
+			fprintf (stderr, "in Found!!\n");
+			in_found = 1;
+			if(in_found == 1){
+				p_ptr = &argv[i+1];
+				argv[i] = NULL;
+				print_cmd_line(p_ptr);
+			}
+		}
+		
+		else if (strcmp (argv[i], ">") == 0) {
+			fprintf (stderr, "out Found!!\n");
+			out_found = 1;
+			if(out_found == 1){
+				p_ptr = &argv[i+1];
+				argv[i] = NULL;
+				print_cmd_line(p_ptr);
+			}
+		}
+		
 	}
 	
 	
@@ -113,7 +134,7 @@ void  execute(char **argv)
 			fprintf (stderr, "ERR: Cannot change directory!!\n");
     }
 	else{
-		if(pipe_found == 0){
+		if(pipe_found == 0 && in_found == 0 && out_found == 0){
 			pid = fork();
 			if (pid < 0) {     
 				fprintf (stderr, "ERR: forking child process failed!!\n");
@@ -163,6 +184,56 @@ void  execute(char **argv)
 			close(p[1]);
 			wait(0);
 			wait(0);
+		}
+		else if(in_found == 1){
+			int fdes;
+			int cur_in;
+			int in;
+			fdes = open(*p_ptr, O_RDONLY, 0);
+			dup2(fdes, STDIN_FILENO);
+			in = 0;
+			cur_in = dup(0);
+			
+			pid = fork();
+			if (pid < 0) {     
+				fprintf (stderr, "ERR: forking child process failed!!\n");
+				exit(1);
+			}
+			else if (pid == 0) {
+				if (execvp(*argv, argv) < 0) {
+					fprintf (stderr, "ERR: exec failed!!\n");
+					exit(1);
+				}
+			}
+			else {                                  
+				if (ampersand_found == 0)
+					while (wait(&status) != pid);
+			}
+		}
+		else if(out_found == 1){
+			int fdes;
+			int cur_out;
+			int out;
+			fdes = open(*p_ptr, O_CREAT|O_TRUNC|O_WRONLY, 0644);
+			dup2(fdes, STDOUT_FILENO);
+			out = 0;
+			cur_out = dup(1);
+			
+			pid = fork();
+			if (pid < 0) {     
+				fprintf (stderr, "ERR: forking child process failed!!\n");
+				exit(1);
+			}
+			else if (pid == 0) {
+				if (execvp(*argv, argv) < 0) {
+					fprintf (stderr, "ERR: exec failed!!\n");
+					exit(1);
+				}
+			}
+			else {                                  
+				if (ampersand_found == 0)
+					while (wait(&status) != pid);
+			}
 		}
 	}
 }
