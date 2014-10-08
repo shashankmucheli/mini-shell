@@ -264,7 +264,7 @@ void  exec(char **argv)													//Game starts here!
 	}
 }
 
-void  cmd_prompt()																		//function to display the prompt using getcwd function
+void  cmd_prompt()																	//function to display the prompt using getcwd function
 {
     char* pwd;
     char buf[PATH_MAX];
