@@ -1,3 +1,16 @@
+/* Mini - Shell 
+ * Name: Shashank Mucheli Sukumar
+ * ID: 014428587
+ * 
+ * Developed at 101-D, CIS Research Labs, Textile Building, UMass Dartmouth.
+ *
+ * 
+ * Course CIS 570 - Advanced Computing Systems.
+ * Instructor: Dr. Paul Gracia.
+ * Computer and Information Science Department.
+ * University Of Massachusetts Dartmouth.
+*/
+
 #include  <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -189,11 +202,18 @@ void  execute(char **argv)
 			int fdes;
 			int cur_in;
 			int in;
-			fdes = open(*p_ptr, O_RDONLY, 0);
-			dup2(fdes, STDIN_FILENO);
-			in = 0;
-			cur_in = dup(0);
+			/*fdes = open(*p_ptr, O_RDONLY, 0);
+			dup2(fdes, 0);
+			in = 0;*/
 			
+			in = open(*p_ptr, O_RDONLY);
+			dup2(in, STDIN_FILENO);
+			/*if(dup2(in, STDIN_FILENO) < 0){
+				fprintf(stderr, "dup not 1\n");
+				exit(1);
+			}*/
+			close(in);
+			cur_in = dup(0);
 			pid = fork();
 			if (pid < 0) {     
 				fprintf (stderr, "ERR: forking child process failed!!\n");
@@ -214,11 +234,17 @@ void  execute(char **argv)
 			int fdes;
 			int cur_out;
 			int out;
-			fdes = open(*p_ptr, O_CREAT|O_TRUNC|O_WRONLY, 0644);
-			dup2(fdes, STDOUT_FILENO);
-			out = 0;
-			cur_out = dup(1);
 			
+			//out = 0;
+			cur_out = dup(1);
+			out = open(*p_ptr, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+			dup2(out, STDOUT_FILENO);
+			/*if(dup2(out, STDOUT_FILENO) < 0){
+				fprintf(stderr, "dup not 1\n");
+				exit(1);
+			}*/
+			close(out);
+			cur_out = dup(1);
 			pid = fork();
 			if (pid < 0) {     
 				fprintf (stderr, "ERR: forking child process failed!!\n");
