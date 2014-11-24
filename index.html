@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Mini-shell by shashankmucheli</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Mini-shell</h1>
+        <h2>A C based command interpreter to get familiar with UNIX system calls.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/shashankmucheli/mini-shell/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/shashankmucheli/mini-shell/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/shashankmucheli/mini-shell" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <p>mini-shell</p>
+
+<p>A C based command interpreter to get familiar with UNIX system calls.</p>
+
+<p>The purpose of this project is to perform the functions specified below:</p>
+
+<ol>
+<li>   Like the dos environment the prompt shows the pathe to the current directory. (Unix system call - getcwd - find the name of the current working directory).</li>
+<li>   Your program should support the following DOS command. With Switches Dos Unix dir ls del rm copy cp move/rename mv type cat cd cd more &lt; file more file md mkdir rd rmdir cls clear</li>
+<li>   When executing these commands the program forks a process and uses execvp to execute the commands.</li>
+<li>   Redirection (&lt; and &gt;) works as intended on the Unix system.</li>
+<li>   Unlike dos, the program supports running the process in the background using the ampersand sign (&amp;). This means that the prompt will printed and the command-interpreter will wait for the next command before the previous commands is completely executed when &amp; is used following the command.</li>
+<li>   implemented pipes in the program. A pipe (|) enables you to pass the output of the command on the left of the pipe as the input to the command on the right of the pipe. For example: $ ls -l | wc will produce a number that will tell you the number of files (including directories, links etc) in your current directory.</li>
+</ol>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
