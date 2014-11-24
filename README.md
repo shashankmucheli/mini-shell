@@ -1,6 +1,8 @@
 mini-shell
+==========
 
 A C based command interpreter to get familiar with UNIX system calls.
+=====================================================================
 
 The purpose of this project is to perform the functions specified below:
 
