@@ -28,15 +28,17 @@
 
     <div class="container">
       <section id="main_content">
-        <p>mini-shell</p>
+        <h1>
+<a id="mini-shell" class="anchor" href="#mini-shell" aria-hidden="true"><span class="octicon octicon-link"></span></a>mini-shell</h1>
 
-<p>A C based command interpreter to get familiar with UNIX system calls.</p>
+<h1>
+<a id="a-c-based-command-interpreter-to-get-familiar-with-unix-system-calls" class="anchor" href="#a-c-based-command-interpreter-to-get-familiar-with-unix-system-calls" aria-hidden="true"><span class="octicon octicon-link"></span></a>A C based command interpreter to get familiar with UNIX system calls.</h1>
 
 <p>The purpose of this project is to perform the functions specified below:</p>
 
 <ol>
 <li>   Like the dos environment the prompt shows the pathe to the current directory. (Unix system call - getcwd - find the name of the current working directory).</li>
-<li>   Your program should support the following DOS command. With Switches Dos Unix dir ls del rm copy cp move/rename mv type cat cd cd more &lt; file more file md mkdir rd rmdir cls clear</li>
+<li>   Program supports the following DOS commands. With Switches Dos Unix dir ls del rm copy cp move/rename mv type cat cd cd more &lt; file more file md mkdir rd rmdir cls clear</li>
 <li>   When executing these commands the program forks a process and uses execvp to execute the commands.</li>
 <li>   Redirection (&lt; and &gt;) works as intended on the Unix system.</li>
 <li>   Unlike dos, the program supports running the process in the background using the ampersand sign (&amp;). This means that the prompt will printed and the command-interpreter will wait for the next command before the previous commands is completely executed when &amp; is used following the command.</li>
